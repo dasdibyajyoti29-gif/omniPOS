@@ -27,8 +27,7 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "package.json",
-      "node_modules/**/*"
+      "package.json"
     ],
     "asarUnpack": [
       "**/node_modules/better-sqlite3/**/*"

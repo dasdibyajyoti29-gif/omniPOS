@@ -7,34 +7,38 @@ on:
 
 jobs:
   build:
-    # We use a Windows runner so Electron can successfully compile the native .exe binaries
     runs-on: windows-latest
 
     steps:
-      # Step 1: Download your source code into the GitHub runner
+      # Step 1: Download your repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js on the runner environment
+      # Step 2: Set up Node 24 (the current standard for GitHub Runners)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Change this to match your local Node version if needed
-          cache: 'npm'     # Speeds up future builds by caching packages
+          node-version: 24
+          cache: 'npm'
 
-      # Step 3: Clean install your node_modules from scratch using package.json
+      # Step 3: Install development dependencies securely
       - name: Install dependencies
         run: npm ci
 
-      # Step 4: Run your package/build script (adjust this to match your package.json script)
-      - name: Build Electron Executable
-        run: npm run build
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed if electron-builder creates drafts
+      # Step 4: Force-compile better-sqlite3 for the target Electron version
+      # (Crucial step for native C++ node modules on Windows)
+      - name: Rebuild Native Modules
+        run: npx electron-builder install-app-deps
 
-      # Step 5: Save and expose the compiled installer so you can download it from GitHub
+      # Step 5: Compile production assets and bundle the .exe installer
+      - name: Build and Package Electron App (.exe)
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 6: Upload the generated installer as an artifact
       - name: Upload Artifact (.exe)
         uses: actions/upload-artifact@v4
         with:
-          name: OmniPOS-Windows-Build
-          path: release/*.exe # Adjust this path to wherever your builder outputs the .exe
+          name: OmniPOS-Windows-Installer
+          path: release/*.exe # Matches the output directory defined in your package.json
