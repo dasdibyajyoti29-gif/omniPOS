@@ -27,7 +27,10 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "package.json"
+      "package.json",
+      "node_modules/**/*",
+      "!node_modules/*/{README,README.md,test,tests,docs,examples}",
+      "!**/inline-node-outputs*"
     ],
     "asarUnpack": [
       "**/node_modules/better-sqlite3/**/*"
