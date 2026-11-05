@@ -1,0 +1,40 @@
+name: Build Windows App (.exe)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    # We use a Windows runner so Electron can successfully compile the native .exe binaries
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Download your source code into the GitHub runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js on the runner environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Change this to match your local Node version if needed
+          cache: 'npm'     # Speeds up future builds by caching packages
+
+      # Step 3: Clean install your node_modules from scratch using package.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Run your package/build script (adjust this to match your package.json script)
+      - name: Build Electron Executable
+        run: npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed if electron-builder creates drafts
+
+      # Step 5: Save and expose the compiled installer so you can download it from GitHub
+      - name: Upload Artifact (.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniPOS-Windows-Build
+          path: release/*.exe # Adjust this path to wherever your builder outputs the .exe
