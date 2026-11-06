@@ -1,44 +1,49 @@
-name: Build Windows App (.exe)
+
+name: Build OmniPOS Windows (.exe)
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-windows:
+    name: Build Windows Installer
     runs-on: windows-latest
 
     steps:
-      # Step 1: Download your repository code
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node 24 (the current standard for GitHub Runners)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
 
-      # Step 3: Install development dependencies securely
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Dependencies
+        run: npm install
 
-      # Step 4: Force-compile better-sqlite3 for the target Electron version
-      # (Crucial step for native C++ node modules on Windows)
-      - name: Rebuild Native Modules
-        run: npx electron-builder install-app-deps
-
-      # Step 5: Compile production assets and bundle the .exe installer
-      - name: Build and Package Electron App (.exe)
+      - name: Build Windows Application
         run: npm run dist:win
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      # Step 6: Upload the generated installer as an artifact
-      - name: Upload Artifact (.exe)
+      - name: Verify EXE Installer
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem "release" -Filter "*.exe"
+          if ($files.Count -eq 0) {
+            throw "Windows installer was not generated"
+          }
+          $files | ForEach-Object {
+            Write-Host "Generated: $($_.FullName)"
+          }
+
+      - name: Upload Windows Installer
         uses: actions/upload-artifact@v4
         with:
           name: OmniPOS-Windows-Installer
-          path: release/*.exe # Matches the output directory defined in your package.json
+          path: release/*.exe
+          if-no-files-found: error
+          retention-days: 30
