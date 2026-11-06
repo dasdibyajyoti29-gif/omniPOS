@@ -22,7 +22,12 @@ jobs:
           node-version: 24
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --ignore-scripts
+
+      - name: Rebuild Native Dependencies
+        run: npx electron-builder install-app-deps
+        env:
+          npm_config_msvs_version: 2022
 
       - name: Build Windows Application
         run: npm run dist:win
