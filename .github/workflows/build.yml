@@ -21,6 +21,13 @@ jobs:
         with:
           node-version: 22
 
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: '3.11'
+
       - name: Install Dependencies
         run: npm install --ignore-scripts
 
@@ -29,10 +36,13 @@ jobs:
         with:
           arch: x64
 
+      
       - name: Rebuild Native Dependencies
         run: npx electron-builder install-app-deps
         env:
-          GYP_MSVS_VERSION: 2022
+          GYP_MSVS_VERSION: '2022'
+          PYTHON: ${{ steps.setup-python.outputs.python-path }}
+          npm_config_python: ${{ steps.setup-python.outputs.python-path }}
 
       - name: Build Windows Application
         run: npm run dist:win
