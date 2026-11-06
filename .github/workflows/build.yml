@@ -10,7 +10,7 @@ on:
 jobs:
   build-windows:
     name: Build Windows Installer
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Checkout Repository
@@ -23,9 +23,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm install --ignore-scripts
-
-      - name: Update node-gyp
-        run: npm install --no-save node-gyp@latest
 
       - name: Setup Visual Studio C++ Environment
         uses: ilammy/msvc-dev-cmd@v1
