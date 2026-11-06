@@ -22,7 +22,6 @@
   "build": {
     "appId": "com.omni.pos",
     "productName": "OmniPOS",
-    "publish": null
     "directories": {
       "output": "release"
     },
