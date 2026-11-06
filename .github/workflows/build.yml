@@ -19,15 +19,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
+          cache: npm
 
       - name: Install Dependencies
         run: npm install --ignore-scripts
 
+      - name: Update node-gyp
+        run: npm install --no-save node-gyp@latest
+
+      - name: Setup Visual Studio C++ Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Rebuild Native Dependencies
         run: npx electron-builder install-app-deps
         env:
-          npm_config_msvs_version: 2022
+          GYP_MSVS_VERSION: 2022
 
       - name: Build Windows Application
         run: npm run dist:win
